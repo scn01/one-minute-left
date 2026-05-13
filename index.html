@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ONE MINUTE LEFT</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="wrapper">
+  <div id="title-bar">
+    <div id="game-title">ONE MINUTE LEFT</div>
+    <div id="hud">
+      <div>TIME <span id="timer-val">60.00</span></div>
+      <div>LVL <span id="lvl-val">--</span></div>
+      <div>BEST <span id="best-val">--</span></div>
+      <div>DIFF <span id="difficulty-label">NORMAL</span></div>
+    </div>
+  </div>
+  <div id="canvas-container">
+    <canvas id="gameCanvas"></canvas>
+    <div id="overlay"></div>
+  </div>
+  <div id="status-bar">
+    <div id="controls-hint">WASD / ARROWS · SPACE / W / UP · R = restart · ESC = menu</div>
+    <div id="difficulty-status">adaptive difficulty active</div>
+  </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

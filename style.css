@@ -1,0 +1,167 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --red: #ff2244; --amber: #ffaa00; --amber-dim: #cc7700;
+  --bg: #0a0a0a; --green: #00ff88; --white: #f0f0e8;
+  --pink: #ff44aa; --scanline: rgba(0,0,0,0.18);
+}
+
+body {
+  background: var(--bg); color: var(--white);
+  font-family: 'Press Start 2P', monospace;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 100vh; overflow: hidden; user-select: none;
+}
+
+#wrapper {
+  position: relative; display: flex; flex-direction: column;
+  align-items: center; gap: 8px; width: 100%; max-width: 900px; padding: 12px;
+}
+
+#title-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 4px 0; border-bottom: 1px solid var(--amber-dim);
+}
+
+#game-title {
+  font-family: 'VT323', monospace; font-size: 28px; color: var(--amber);
+  letter-spacing: 3px; text-shadow: 0 0 12px var(--amber-dim);
+}
+
+#hud { display: flex; gap: 18px; align-items: center; font-size: 8px; color: var(--amber); flex-wrap: wrap; }
+#hud span { color: var(--white); }
+#timer-val { color: var(--red); font-size: 10px; }
+#timer-val.urgent { animation: blink 0.4s step-end infinite; }
+
+@keyframes blink { 50% { opacity: 0; } }
+
+#canvas-container {
+  position: relative; width: 100%; border: 1px solid #333;
+  background: #050505; overflow: hidden; cursor: none;
+}
+
+#canvas-container::after {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, var(--scanline) 0px, var(--scanline) 1px, transparent 1px, transparent 3px);
+  pointer-events: none; z-index: 10;
+}
+
+#gameCanvas { display: block; width: 100%; image-rendering: pixelated; }
+
+#status-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; font-size: 7px; color: #444; padding: 2px 0; border-top: 1px solid #222;
+}
+
+#controls-hint { font-family: 'VT323', monospace; font-size: 14px; color: #555; letter-spacing: 1px; }
+#difficulty-label { color: var(--green); }
+
+/* ── Overlay ── */
+#overlay {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; background: rgba(0,0,0,0.92);
+  z-index: 20; gap: 12px; text-align: center; padding: 16px; overflow-y: auto;
+}
+#overlay.hidden { display: none; }
+
+#overlay h1 {
+  font-family: 'VT323', monospace; font-size: clamp(28px, 5.5vw, 50px);
+  color: var(--amber); text-shadow: 0 0 20px var(--amber-dim);
+  letter-spacing: 4px; line-height: 1.2;
+}
+#overlay h1 span { color: var(--red); }
+
+#overlay p {
+  font-family: 'VT323', monospace; font-size: clamp(12px, 2.6vw, 16px);
+  color: var(--white); line-height: 1.6; max-width: 520px; letter-spacing: 1px;
+}
+#overlay p.muted { color: #555; font-size: clamp(9px, 1.6vw, 12px); }
+
+.btn {
+  font-family: 'Press Start 2P', monospace; font-size: clamp(6px, 1.3vw, 9px);
+  color: var(--bg); background: var(--amber); border: none;
+  padding: 9px 18px; cursor: pointer; letter-spacing: 1px;
+  transition: background 0.1s, transform 0.1s;
+  clip-path: polygon(0 2px,2px 0,calc(100% - 2px) 0,100% 2px,100% calc(100% - 2px),calc(100% - 2px) 100%,2px 100%,0 calc(100% - 2px));
+}
+.btn:hover { background: var(--white); transform: scale(1.04); }
+.btn:active { transform: scale(0.97); }
+.btn.red { background: var(--red); color: var(--white); }
+.btn.ghost { background: transparent; color: #555; border: 1px solid #333; }
+.btn.ghost:hover { color: var(--white); border-color: #555; }
+
+#btn-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+/* ── Level Select Grid ── */
+#level-select {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px;
+  width: 100%; max-width: 540px;
+}
+
+.lvl-card {
+  font-family: 'VT323', monospace; border: 1px solid #2a2a2a;
+  padding: 9px 6px; cursor: pointer;
+  transition: border-color 0.15s, background 0.15s; text-align: center;
+  background: rgba(255,255,255,0.025); line-height: 1.7; letter-spacing: 1px;
+  clip-path: polygon(0 2px,2px 0,calc(100% - 2px) 0,100% 2px,100% calc(100% - 2px),calc(100% - 2px) 100%,2px 100%,0 calc(100% - 2px));
+}
+.lvl-card:hover:not(.locked) { background: rgba(255,255,255,0.06); border-color: #555; }
+.lvl-card.selected { border-color: var(--amber); background: rgba(255,170,0,0.07); }
+.lvl-card.locked { opacity: 0.3; cursor: not-allowed; }
+
+.lvl-card .lvl-icon { font-size: clamp(13px, 2.2vw, 17px); margin-bottom: 2px; }
+.lvl-card .lvl-name { font-size: clamp(8px, 1.4vw, 11px); color: var(--amber); }
+.lvl-card .lvl-best { font-size: clamp(7px, 1.2vw, 10px); color: #444; margin-top: 2px; }
+
+.lvl-card.secret-card .lvl-name { color: var(--pink); }
+.lvl-card.secret-card { border-color: #2a0018; }
+.lvl-card.secret-card.selected { border-color: var(--pink); background: rgba(255,68,170,0.07); }
+
+/* ── Secret unlock animation ── */
+.lvl-card.secret-card.just-unlocked {
+  animation: secret-pulse 1s ease-in-out infinite;
+  border-color: var(--pink) !important;
+  opacity: 1 !important;
+}
+@keyframes secret-pulse {
+  0%   { box-shadow: 0 0 0px var(--pink);  background: rgba(255,68,170,0.05); }
+  50%  { box-shadow: 0 0 18px var(--pink); background: rgba(255,68,170,0.18); }
+  100% { box-shadow: 0 0 0px var(--pink);  background: rgba(255,68,170,0.05); }
+}
+
+/* ── Secret unlock toast ── */
+#secret-toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(60px);
+  background: #0a0005;
+  border: 1px solid var(--pink);
+  color: var(--pink);
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  letter-spacing: 2px;
+  padding: 10px 22px;
+  z-index: 100;
+  pointer-events: none;
+  white-space: nowrap;
+  clip-path: polygon(0 2px,2px 0,calc(100% - 2px) 0,100% 2px,100% calc(100% - 2px),calc(100% - 2px) 100%,2px 100%,0 calc(100% - 2px));
+  transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.35s;
+  opacity: 0;
+  box-shadow: 0 0 20px rgba(255,68,170,0.3);
+}
+#secret-toast.visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+#stats-box {
+  font-family: 'VT323', monospace; font-size: clamp(10px, 2vw, 14px);
+  color: #555; line-height: 1.9; letter-spacing: 1px;
+}
+#stats-box .hi { color: var(--green); }
+#stats-box .label { color: #3a3a3a; }
+
+.unlock-msg { color: var(--pink); font-family: 'VT323', monospace; font-size: clamp(13px,2.4vw,16px); letter-spacing: 2px; }
